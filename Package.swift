@@ -18,7 +18,7 @@ let package = Package(
             ]),            
         .binaryTarget(
             name: "c4_swift", 
-            path: "c4_swift.xcframework"
+            path: "../../build/c4_swift.xcframework"
         ),
         .testTarget(
             name: "ColibriTests",
