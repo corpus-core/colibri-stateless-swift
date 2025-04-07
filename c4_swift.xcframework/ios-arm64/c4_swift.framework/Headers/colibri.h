@@ -7,6 +7,7 @@ typedef struct {
   uint8_t* data;
   uint32_t len;
 } bytes_t;
+
 #define BYTES_T_DEFINED
 #endif
 
@@ -97,3 +98,11 @@ char* verify_execute_json_status(void* ctx);
  * frees the verification context
  */
 void verify_free_ctx(void* ctx);
+
+/**
+ * gets the method type of a json-rpc-method
+ * @param chain_id the chain id
+ * @param method the method
+ * @return the method type
+ */
+int c4_get_method_support(uint64_t chain_id, char* method);
