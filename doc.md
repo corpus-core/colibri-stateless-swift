@@ -2,8 +2,6 @@
 
 :: Swift
 
-# Colibri Swift Bindings
-
 Swift Package for integrating Colibri Stateless Client into iOS and macOS applications. These bindings provide a native Swift API for secure, verified blockchain interactions without trusting centralized infrastructure.
 
 ## Overview
@@ -24,22 +22,22 @@ The Colibri Swift Bindings enable you to verify Ethereum RPC calls with cryptogr
 ┌─────────────────────────────────────────────────────────────────┐
 │                    Swift Application Layer                      │
 ├─────────────────────────────────────────────────────────────────┤
-│                     Colibri.swift API                          │
-│  • Colibri class (main interface)                              │
-│  • RequestHandler protocol                                     │
-│  • ColibriStorage protocol                                     │
-│  • Error handling & type conversion                            │
+│                     Colibri.swift API                           │
+│  • Colibri class (main interface)                               │
+│  • RequestHandler protocol                                      │
+│  • ColibriStorage protocol                                      │
+│  • Error handling & type conversion                             │
 ├─────────────────────────────────────────────────────────────────┤
-│                  Swift-C Bridge Layer                          │
-│  • swift_storage_bridge.c                                      │
-│  • Function pointer callbacks                                  │
-│  • Memory management                                           │
+│                  Swift-C Bridge Layer                           │
+│  • swift_storage_bridge.c                                       │
+│  • Function pointer callbacks                                   │
+│  • Memory management                                            │
 ├─────────────────────────────────────────────────────────────────┤
-│                   Core C Libraries                             │
-│  • Proofer (proof generation)                                  │
-│  • Verifier (proof verification)                               │
-│  • Storage plugin system                                       │
-│  • Cryptographic libraries (blst, ed25519)                     │
+│                   Core C Libraries                              │
+│  • Proofer (proof generation)                                   │
+│  • Verifier (proof verification)                                │
+│  • Storage plugin system                                        │
+│  • Cryptographic libraries (blst, ed25519)                      │
 └─────────────────────────────────────────────────────────────────┘
 ```
 
@@ -74,6 +72,12 @@ if let balance = result as? String {
     print("Account balance: \(balance)")
 }
 ```
+
+### iOS Example App
+
+The CI-Pipeline contains a minimalistic Example and TestApp for iOS, which is used to test the integration. You can look at the code as an example on how to use certain features.
+
+The code can be found in the [bindings/swift/test_ios_app](https://github.com/corpus-core/colibri-stateless/tree/dev/bindings/swift/test_ios_app).
 
 ### macOS Development
 
@@ -626,6 +630,7 @@ class DebugRequestHandler: RequestHandler {
 
 ## Further Information
 
+- **📖 Online Documentation**: [GitBook Guide](https://corpus-core.gitbook.io/specification-colibri-stateless/developer-guide/bindings/swift)
 - **Core Repository**: [colibri-stateless](https://github.com/corpus-core/colibri-stateless)
 - **Distribution Package**: [colibri-stateless-swift](https://github.com/corpus-core/colibri-stateless-swift)
 - **Example iOS App**: `bindings/swift/test_ios_app/`
