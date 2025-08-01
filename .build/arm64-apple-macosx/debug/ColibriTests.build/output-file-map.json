@@ -1,0 +1,11 @@
+{
+  "": {
+    "swift-dependencies": "/Users/simon/ws/cc/colibri-stateless-swift/.build/arm64-apple-macosx/debug/ColibriTests.build/master.swiftdeps"
+  },
+  "/Users/simon/ws/cc/colibri-stateless-swift/Tests/ColibriTests.swift": {
+    "dependencies": "/Users/simon/ws/cc/colibri-stateless-swift/.build/arm64-apple-macosx/debug/ColibriTests.build/ColibriTests.d",
+    "object": "/Users/simon/ws/cc/colibri-stateless-swift/.build/arm64-apple-macosx/debug/ColibriTests.build/ColibriTests.swift.o",
+    "swiftmodule": "/Users/simon/ws/cc/colibri-stateless-swift/.build/arm64-apple-macosx/debug/ColibriTests.build/ColibriTests~partial.swiftmodule",
+    "swift-dependencies": "/Users/simon/ws/cc/colibri-stateless-swift/.build/arm64-apple-macosx/debug/ColibriTests.build/ColibriTests.swiftdeps"
+  }
+}

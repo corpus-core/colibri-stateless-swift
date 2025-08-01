@@ -1,0 +1,27 @@
+{
+  "object" : {
+    "artifacts" : [
+      {
+        "kind" : "xcframework",
+        "packageRef" : {
+          "identity" : "colibri-stateless-swift",
+          "kind" : "root",
+          "location" : "/Users/simon/ws/cc/colibri-stateless-swift",
+          "name" : "colibri-stateless-swift"
+        },
+        "path" : "/Users/simon/ws/cc/colibri-stateless-swift/c4_swift.xcframework",
+        "source" : {
+          "type" : "local"
+        },
+        "targetName" : "c4_swift"
+      }
+    ],
+    "dependencies" : [
+
+    ],
+    "prebuilts" : [
+
+    ]
+  },
+  "version" : 7
+}

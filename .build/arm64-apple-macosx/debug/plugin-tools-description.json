@@ -1,0 +1,649 @@
+{
+  "builtTestProducts" : [
+    {
+      "binaryPath" : "/Users/simon/ws/cc/colibri-stateless-swift/.build/arm64-apple-macosx/debug/ColibriPackageTests.xctest/Contents/MacOS/ColibriPackageTests",
+      "packagePath" : "/Users/simon/ws/cc/colibri-stateless-swift",
+      "productName" : "ColibriPackageTests"
+    }
+  ],
+  "copyCommands" : {
+
+  },
+  "explicitTargetDependencyImportCheckingMode" : {
+    "none" : {
+
+    }
+  },
+  "generatedSourceTargetSet" : [
+
+  ],
+  "pluginDescriptions" : [
+
+  ],
+  "swiftCommands" : {
+    "C.Colibri-arm64-apple-macosx15.0-debug.module" : {
+      "executable" : "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/swiftc",
+      "fileList" : "/Users/simon/ws/cc/colibri-stateless-swift/.build/arm64-apple-macosx/debug/Colibri.build/sources",
+      "importPath" : "/Users/simon/ws/cc/colibri-stateless-swift/.build/arm64-apple-macosx/debug/Modules",
+      "inputs" : [
+        {
+          "kind" : "file",
+          "name" : "/Users/simon/ws/cc/colibri-stateless-swift/Sources/Colibri/Colibri.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/simon/ws/cc/colibri-stateless-swift/.build/arm64-apple-macosx/debug/swift-version--58304C5D6DBC2206.txt"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/simon/ws/cc/colibri-stateless-swift/.build/arm64-apple-macosx/debug/CColibriMacOS.build/swift_storage_bridge.c.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/simon/ws/cc/colibri-stateless-swift/.build/arm64-apple-macosx/debug/Colibri.build/sources"
+        }
+      ],
+      "isLibrary" : true,
+      "moduleName" : "Colibri",
+      "moduleOutputPath" : "/Users/simon/ws/cc/colibri-stateless-swift/.build/arm64-apple-macosx/debug/Modules/Colibri.swiftmodule",
+      "objects" : [
+        "/Users/simon/ws/cc/colibri-stateless-swift/.build/arm64-apple-macosx/debug/Colibri.build/Colibri.swift.o"
+      ],
+      "otherArguments" : [
+        "-target",
+        "arm64-apple-macosx10.13",
+        "-enable-batch-mode",
+        "-index-store-path",
+        "/Users/simon/ws/cc/colibri-stateless-swift/.build/arm64-apple-macosx/debug/index/store",
+        "-Onone",
+        "-enable-testing",
+        "-j14",
+        "-DSWIFT_PACKAGE",
+        "-DDEBUG",
+        "-Xcc",
+        "-fmodule-map-file=/Users/simon/ws/cc/colibri-stateless-swift/.build/arm64-apple-macosx/debug/CColibriMacOS.build/module.modulemap",
+        "-Xcc",
+        "-I",
+        "-Xcc",
+        "/Users/simon/ws/cc/colibri-stateless-swift/Sources/CColibri/include",
+        "-module-cache-path",
+        "/Users/simon/ws/cc/colibri-stateless-swift/.build/arm64-apple-macosx/debug/ModuleCache",
+        "-parseable-output",
+        "-parse-as-library",
+        "-emit-objc-header",
+        "-emit-objc-header-path",
+        "/Users/simon/ws/cc/colibri-stateless-swift/.build/arm64-apple-macosx/debug/Colibri.build/Colibri-Swift.h",
+        "-color-diagnostics",
+        "-swift-version",
+        "5",
+        "-sdk",
+        "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX15.5.sdk",
+        "-F",
+        "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/Library/Frameworks",
+        "-F",
+        "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/Library/PrivateFrameworks",
+        "-I",
+        "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/usr/lib",
+        "-L",
+        "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/usr/lib",
+        "-g",
+        "-Xcc",
+        "-isysroot",
+        "-Xcc",
+        "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX15.5.sdk",
+        "-Xcc",
+        "-F",
+        "-Xcc",
+        "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/Library/Frameworks",
+        "-Xcc",
+        "-F",
+        "-Xcc",
+        "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/Library/PrivateFrameworks",
+        "-Xcc",
+        "-fPIC",
+        "-Xcc",
+        "-g"
+      ],
+      "outputFileMapPath" : "/Users/simon/ws/cc/colibri-stateless-swift/.build/arm64-apple-macosx/debug/Colibri.build/output-file-map.json",
+      "outputs" : [
+        {
+          "kind" : "file",
+          "name" : "/Users/simon/ws/cc/colibri-stateless-swift/.build/arm64-apple-macosx/debug/Colibri.build/Colibri.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/simon/ws/cc/colibri-stateless-swift/.build/arm64-apple-macosx/debug/Modules/Colibri.swiftmodule"
+        }
+      ],
+      "prepareForIndexing" : false,
+      "sources" : [
+        "/Users/simon/ws/cc/colibri-stateless-swift/Sources/Colibri/Colibri.swift"
+      ],
+      "tempsPath" : "/Users/simon/ws/cc/colibri-stateless-swift/.build/arm64-apple-macosx/debug/Colibri.build",
+      "wholeModuleOptimization" : false
+    },
+    "C.ColibriPackageTests-arm64-apple-macosx15.0-debug.module" : {
+      "executable" : "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/swiftc",
+      "fileList" : "/Users/simon/ws/cc/colibri-stateless-swift/.build/arm64-apple-macosx/debug/ColibriPackageTests.build/sources",
+      "importPath" : "/Users/simon/ws/cc/colibri-stateless-swift/.build/arm64-apple-macosx/debug/Modules",
+      "inputs" : [
+        {
+          "kind" : "file",
+          "name" : "/Users/simon/ws/cc/colibri-stateless-swift/.build/arm64-apple-macosx/debug/ColibriPackageTests.derived/runner.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/simon/ws/cc/colibri-stateless-swift/.build/arm64-apple-macosx/debug/swift-version--58304C5D6DBC2206.txt"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/simon/ws/cc/colibri-stateless-swift/.build/arm64-apple-macosx/debug/Modules/ColibriTests.swiftmodule"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/simon/ws/cc/colibri-stateless-swift/.build/arm64-apple-macosx/debug/ColibriPackageTests.build/sources"
+        }
+      ],
+      "isLibrary" : true,
+      "moduleName" : "ColibriPackageTests",
+      "moduleOutputPath" : "/Users/simon/ws/cc/colibri-stateless-swift/.build/arm64-apple-macosx/debug/Modules/ColibriPackageTests.swiftmodule",
+      "objects" : [
+        "/Users/simon/ws/cc/colibri-stateless-swift/.build/arm64-apple-macosx/debug/ColibriPackageTests.build/runner.swift.o"
+      ],
+      "otherArguments" : [
+        "-target",
+        "arm64-apple-macosx10.13",
+        "-enable-batch-mode",
+        "-index-store-path",
+        "/Users/simon/ws/cc/colibri-stateless-swift/.build/arm64-apple-macosx/debug/index/store",
+        "-Onone",
+        "-enable-testing",
+        "-Xfrontend",
+        "-enable-cross-import-overlays",
+        "-j14",
+        "-DSWIFT_PACKAGE",
+        "-DDEBUG",
+        "-Xcc",
+        "-fmodule-map-file=/Users/simon/ws/cc/colibri-stateless-swift/.build/arm64-apple-macosx/debug/CColibriMacOS.build/module.modulemap",
+        "-Xcc",
+        "-I",
+        "-Xcc",
+        "/Users/simon/ws/cc/colibri-stateless-swift/Sources/CColibri/include",
+        "-module-cache-path",
+        "/Users/simon/ws/cc/colibri-stateless-swift/.build/arm64-apple-macosx/debug/ModuleCache",
+        "-parseable-output",
+        "-parse-as-library",
+        "-emit-objc-header",
+        "-emit-objc-header-path",
+        "/Users/simon/ws/cc/colibri-stateless-swift/.build/arm64-apple-macosx/debug/ColibriPackageTests.build/ColibriPackageTests-Swift.h",
+        "-color-diagnostics",
+        "-sdk",
+        "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX15.5.sdk",
+        "-F",
+        "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/Library/Frameworks",
+        "-F",
+        "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/Library/PrivateFrameworks",
+        "-I",
+        "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/usr/lib",
+        "-L",
+        "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/usr/lib",
+        "-g",
+        "-Xcc",
+        "-isysroot",
+        "-Xcc",
+        "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX15.5.sdk",
+        "-Xcc",
+        "-F",
+        "-Xcc",
+        "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/Library/Frameworks",
+        "-Xcc",
+        "-F",
+        "-Xcc",
+        "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/Library/PrivateFrameworks",
+        "-Xcc",
+        "-fPIC",
+        "-Xcc",
+        "-g"
+      ],
+      "outputFileMapPath" : "/Users/simon/ws/cc/colibri-stateless-swift/.build/arm64-apple-macosx/debug/ColibriPackageTests.build/output-file-map.json",
+      "outputs" : [
+        {
+          "kind" : "file",
+          "name" : "/Users/simon/ws/cc/colibri-stateless-swift/.build/arm64-apple-macosx/debug/ColibriPackageTests.build/runner.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/simon/ws/cc/colibri-stateless-swift/.build/arm64-apple-macosx/debug/Modules/ColibriPackageTests.swiftmodule"
+        }
+      ],
+      "prepareForIndexing" : false,
+      "sources" : [
+        "/Users/simon/ws/cc/colibri-stateless-swift/.build/arm64-apple-macosx/debug/ColibriPackageTests.derived/runner.swift"
+      ],
+      "tempsPath" : "/Users/simon/ws/cc/colibri-stateless-swift/.build/arm64-apple-macosx/debug/ColibriPackageTests.build",
+      "wholeModuleOptimization" : false
+    },
+    "C.ColibriTests-arm64-apple-macosx15.0-debug.module" : {
+      "executable" : "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/swiftc",
+      "fileList" : "/Users/simon/ws/cc/colibri-stateless-swift/.build/arm64-apple-macosx/debug/ColibriTests.build/sources",
+      "importPath" : "/Users/simon/ws/cc/colibri-stateless-swift/.build/arm64-apple-macosx/debug/Modules",
+      "inputs" : [
+        {
+          "kind" : "file",
+          "name" : "/Users/simon/ws/cc/colibri-stateless-swift/Tests/ColibriTests.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/simon/ws/cc/colibri-stateless-swift/.build/arm64-apple-macosx/debug/swift-version--58304C5D6DBC2206.txt"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/simon/ws/cc/colibri-stateless-swift/.build/arm64-apple-macosx/debug/Modules/Colibri.swiftmodule"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/simon/ws/cc/colibri-stateless-swift/.build/arm64-apple-macosx/debug/ColibriTests.build/sources"
+        }
+      ],
+      "isLibrary" : true,
+      "moduleName" : "ColibriTests",
+      "moduleOutputPath" : "/Users/simon/ws/cc/colibri-stateless-swift/.build/arm64-apple-macosx/debug/Modules/ColibriTests.swiftmodule",
+      "objects" : [
+        "/Users/simon/ws/cc/colibri-stateless-swift/.build/arm64-apple-macosx/debug/ColibriTests.build/ColibriTests.swift.o"
+      ],
+      "otherArguments" : [
+        "-target",
+        "arm64-apple-macosx14.0",
+        "-enable-batch-mode",
+        "-index-store-path",
+        "/Users/simon/ws/cc/colibri-stateless-swift/.build/arm64-apple-macosx/debug/index/store",
+        "-Onone",
+        "-enable-testing",
+        "-Xfrontend",
+        "-enable-cross-import-overlays",
+        "-j14",
+        "-DSWIFT_PACKAGE",
+        "-DDEBUG",
+        "-Xcc",
+        "-fmodule-map-file=/Users/simon/ws/cc/colibri-stateless-swift/.build/arm64-apple-macosx/debug/CColibriMacOS.build/module.modulemap",
+        "-Xcc",
+        "-I",
+        "-Xcc",
+        "/Users/simon/ws/cc/colibri-stateless-swift/Sources/CColibri/include",
+        "-module-cache-path",
+        "/Users/simon/ws/cc/colibri-stateless-swift/.build/arm64-apple-macosx/debug/ModuleCache",
+        "-parseable-output",
+        "-parse-as-library",
+        "-color-diagnostics",
+        "-swift-version",
+        "5",
+        "-sdk",
+        "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX15.5.sdk",
+        "-F",
+        "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/Library/Frameworks",
+        "-F",
+        "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/Library/PrivateFrameworks",
+        "-I",
+        "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/usr/lib",
+        "-L",
+        "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/usr/lib",
+        "-g",
+        "-Xcc",
+        "-isysroot",
+        "-Xcc",
+        "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX15.5.sdk",
+        "-Xcc",
+        "-F",
+        "-Xcc",
+        "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/Library/Frameworks",
+        "-Xcc",
+        "-F",
+        "-Xcc",
+        "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/Library/PrivateFrameworks",
+        "-Xcc",
+        "-fPIC",
+        "-Xcc",
+        "-g"
+      ],
+      "outputFileMapPath" : "/Users/simon/ws/cc/colibri-stateless-swift/.build/arm64-apple-macosx/debug/ColibriTests.build/output-file-map.json",
+      "outputs" : [
+        {
+          "kind" : "file",
+          "name" : "/Users/simon/ws/cc/colibri-stateless-swift/.build/arm64-apple-macosx/debug/ColibriTests.build/ColibriTests.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/simon/ws/cc/colibri-stateless-swift/.build/arm64-apple-macosx/debug/Modules/ColibriTests.swiftmodule"
+        }
+      ],
+      "prepareForIndexing" : false,
+      "sources" : [
+        "/Users/simon/ws/cc/colibri-stateless-swift/Tests/ColibriTests.swift"
+      ],
+      "tempsPath" : "/Users/simon/ws/cc/colibri-stateless-swift/.build/arm64-apple-macosx/debug/ColibriTests.build",
+      "wholeModuleOptimization" : false
+    }
+  },
+  "swiftFrontendCommands" : {
+
+  },
+  "swiftTargetScanArgs" : {
+    "Colibri" : [
+      "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/swiftc",
+      "-module-name",
+      "Colibri",
+      "-incremental",
+      "-c",
+      "/Users/simon/ws/cc/colibri-stateless-swift/Sources/Colibri/Colibri.swift",
+      "-I",
+      "/Users/simon/ws/cc/colibri-stateless-swift/.build/arm64-apple-macosx/debug/Modules",
+      "-target",
+      "arm64-apple-macosx10.13",
+      "-enable-batch-mode",
+      "-index-store-path",
+      "/Users/simon/ws/cc/colibri-stateless-swift/.build/arm64-apple-macosx/debug/index/store",
+      "-Onone",
+      "-enable-testing",
+      "-j14",
+      "-DSWIFT_PACKAGE",
+      "-DDEBUG",
+      "-Xcc",
+      "-fmodule-map-file=/Users/simon/ws/cc/colibri-stateless-swift/.build/arm64-apple-macosx/debug/CColibriMacOS.build/module.modulemap",
+      "-Xcc",
+      "-I",
+      "-Xcc",
+      "/Users/simon/ws/cc/colibri-stateless-swift/Sources/CColibri/include",
+      "-module-cache-path",
+      "/Users/simon/ws/cc/colibri-stateless-swift/.build/arm64-apple-macosx/debug/ModuleCache",
+      "-parseable-output",
+      "-parse-as-library",
+      "-emit-objc-header",
+      "-emit-objc-header-path",
+      "/Users/simon/ws/cc/colibri-stateless-swift/.build/arm64-apple-macosx/debug/Colibri.build/Colibri-Swift.h",
+      "-color-diagnostics",
+      "-swift-version",
+      "5",
+      "-sdk",
+      "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX15.5.sdk",
+      "-F",
+      "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/Library/Frameworks",
+      "-F",
+      "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/Library/PrivateFrameworks",
+      "-I",
+      "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/usr/lib",
+      "-L",
+      "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/usr/lib",
+      "-g",
+      "-Xcc",
+      "-isysroot",
+      "-Xcc",
+      "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX15.5.sdk",
+      "-Xcc",
+      "-F",
+      "-Xcc",
+      "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/Library/Frameworks",
+      "-Xcc",
+      "-F",
+      "-Xcc",
+      "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/Library/PrivateFrameworks",
+      "-Xcc",
+      "-fPIC",
+      "-Xcc",
+      "-g",
+      "-driver-use-frontend-path",
+      "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/swiftc"
+    ],
+    "ColibriPackageTests" : [
+      "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/swiftc",
+      "-module-name",
+      "ColibriPackageTests",
+      "-incremental",
+      "-c",
+      "/Users/simon/ws/cc/colibri-stateless-swift/.build/arm64-apple-macosx/debug/ColibriPackageTests.derived/runner.swift",
+      "-I",
+      "/Users/simon/ws/cc/colibri-stateless-swift/.build/arm64-apple-macosx/debug/Modules",
+      "-target",
+      "arm64-apple-macosx10.13",
+      "-enable-batch-mode",
+      "-index-store-path",
+      "/Users/simon/ws/cc/colibri-stateless-swift/.build/arm64-apple-macosx/debug/index/store",
+      "-Onone",
+      "-enable-testing",
+      "-Xfrontend",
+      "-enable-cross-import-overlays",
+      "-j14",
+      "-DSWIFT_PACKAGE",
+      "-DDEBUG",
+      "-Xcc",
+      "-fmodule-map-file=/Users/simon/ws/cc/colibri-stateless-swift/.build/arm64-apple-macosx/debug/CColibriMacOS.build/module.modulemap",
+      "-Xcc",
+      "-I",
+      "-Xcc",
+      "/Users/simon/ws/cc/colibri-stateless-swift/Sources/CColibri/include",
+      "-module-cache-path",
+      "/Users/simon/ws/cc/colibri-stateless-swift/.build/arm64-apple-macosx/debug/ModuleCache",
+      "-parseable-output",
+      "-parse-as-library",
+      "-emit-objc-header",
+      "-emit-objc-header-path",
+      "/Users/simon/ws/cc/colibri-stateless-swift/.build/arm64-apple-macosx/debug/ColibriPackageTests.build/ColibriPackageTests-Swift.h",
+      "-color-diagnostics",
+      "-sdk",
+      "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX15.5.sdk",
+      "-F",
+      "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/Library/Frameworks",
+      "-F",
+      "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/Library/PrivateFrameworks",
+      "-I",
+      "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/usr/lib",
+      "-L",
+      "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/usr/lib",
+      "-g",
+      "-Xcc",
+      "-isysroot",
+      "-Xcc",
+      "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX15.5.sdk",
+      "-Xcc",
+      "-F",
+      "-Xcc",
+      "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/Library/Frameworks",
+      "-Xcc",
+      "-F",
+      "-Xcc",
+      "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/Library/PrivateFrameworks",
+      "-Xcc",
+      "-fPIC",
+      "-Xcc",
+      "-g",
+      "-driver-use-frontend-path",
+      "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/swiftc"
+    ],
+    "ColibriTests" : [
+      "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/swiftc",
+      "-module-name",
+      "ColibriTests",
+      "-incremental",
+      "-c",
+      "/Users/simon/ws/cc/colibri-stateless-swift/Tests/ColibriTests.swift",
+      "-I",
+      "/Users/simon/ws/cc/colibri-stateless-swift/.build/arm64-apple-macosx/debug/Modules",
+      "-target",
+      "arm64-apple-macosx14.0",
+      "-enable-batch-mode",
+      "-index-store-path",
+      "/Users/simon/ws/cc/colibri-stateless-swift/.build/arm64-apple-macosx/debug/index/store",
+      "-Onone",
+      "-enable-testing",
+      "-Xfrontend",
+      "-enable-cross-import-overlays",
+      "-j14",
+      "-DSWIFT_PACKAGE",
+      "-DDEBUG",
+      "-Xcc",
+      "-fmodule-map-file=/Users/simon/ws/cc/colibri-stateless-swift/.build/arm64-apple-macosx/debug/CColibriMacOS.build/module.modulemap",
+      "-Xcc",
+      "-I",
+      "-Xcc",
+      "/Users/simon/ws/cc/colibri-stateless-swift/Sources/CColibri/include",
+      "-module-cache-path",
+      "/Users/simon/ws/cc/colibri-stateless-swift/.build/arm64-apple-macosx/debug/ModuleCache",
+      "-parseable-output",
+      "-parse-as-library",
+      "-color-diagnostics",
+      "-swift-version",
+      "5",
+      "-sdk",
+      "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX15.5.sdk",
+      "-F",
+      "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/Library/Frameworks",
+      "-F",
+      "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/Library/PrivateFrameworks",
+      "-I",
+      "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/usr/lib",
+      "-L",
+      "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/usr/lib",
+      "-g",
+      "-Xcc",
+      "-isysroot",
+      "-Xcc",
+      "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX15.5.sdk",
+      "-Xcc",
+      "-F",
+      "-Xcc",
+      "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/Library/Frameworks",
+      "-Xcc",
+      "-F",
+      "-Xcc",
+      "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/Library/PrivateFrameworks",
+      "-Xcc",
+      "-fPIC",
+      "-Xcc",
+      "-g",
+      "-driver-use-frontend-path",
+      "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/swiftc"
+    ]
+  },
+  "targetDependencyMap" : {
+    "CColibriMacOS" : [
+      "c4_swift"
+    ],
+    "Colibri" : [
+      "CColibriMacOS",
+      "c4_swift"
+    ],
+    "ColibriPackageTests" : [
+      "ColibriTests",
+      "Colibri",
+      "CColibriMacOS",
+      "c4_swift"
+    ],
+    "ColibriTests" : [
+      "Colibri",
+      "CColibriMacOS",
+      "c4_swift"
+    ]
+  },
+  "testDiscoveryCommands" : {
+
+  },
+  "testEntryPointCommands" : {
+    "/Users/simon/ws/cc/colibri-stateless-swift/.build/arm64-apple-macosx/debug/ColibriPackageTests.derived/runner.swift" : {
+      "inputs" : [
+
+      ],
+      "outputs" : [
+        {
+          "kind" : "file",
+          "name" : "/Users/simon/ws/cc/colibri-stateless-swift/.build/arm64-apple-macosx/debug/ColibriPackageTests.derived/runner.swift"
+        }
+      ]
+    }
+  },
+  "traitConfiguration" : {
+    "enableAllTraits" : false
+  },
+  "writeCommands" : {
+    "/Users/simon/ws/cc/colibri-stateless-swift/.build/arm64-apple-macosx/debug/Colibri.build/sources" : {
+      "alwaysOutOfDate" : false,
+      "inputs" : [
+        {
+          "kind" : "virtual",
+          "name" : "<sources-file-list>"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/simon/ws/cc/colibri-stateless-swift/Sources/Colibri/Colibri.swift"
+        }
+      ],
+      "outputFilePath" : "/Users/simon/ws/cc/colibri-stateless-swift/.build/arm64-apple-macosx/debug/Colibri.build/sources"
+    },
+    "/Users/simon/ws/cc/colibri-stateless-swift/.build/arm64-apple-macosx/debug/ColibriPackageTests.build/sources" : {
+      "alwaysOutOfDate" : false,
+      "inputs" : [
+        {
+          "kind" : "virtual",
+          "name" : "<sources-file-list>"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/simon/ws/cc/colibri-stateless-swift/.build/arm64-apple-macosx/debug/ColibriPackageTests.derived/runner.swift"
+        }
+      ],
+      "outputFilePath" : "/Users/simon/ws/cc/colibri-stateless-swift/.build/arm64-apple-macosx/debug/ColibriPackageTests.build/sources"
+    },
+    "/Users/simon/ws/cc/colibri-stateless-swift/.build/arm64-apple-macosx/debug/ColibriPackageTests.product/Objects.LinkFileList" : {
+      "alwaysOutOfDate" : false,
+      "inputs" : [
+        {
+          "kind" : "virtual",
+          "name" : "<link-file-list>"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/simon/ws/cc/colibri-stateless-swift/.build/arm64-apple-macosx/debug/CColibriMacOS.build/swift_storage_bridge.c.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/simon/ws/cc/colibri-stateless-swift/.build/arm64-apple-macosx/debug/Colibri.build/Colibri.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/simon/ws/cc/colibri-stateless-swift/.build/arm64-apple-macosx/debug/ColibriPackageTests.build/runner.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/simon/ws/cc/colibri-stateless-swift/.build/arm64-apple-macosx/debug/ColibriTests.build/ColibriTests.swift.o"
+        }
+      ],
+      "outputFilePath" : "/Users/simon/ws/cc/colibri-stateless-swift/.build/arm64-apple-macosx/debug/ColibriPackageTests.product/Objects.LinkFileList"
+    },
+    "/Users/simon/ws/cc/colibri-stateless-swift/.build/arm64-apple-macosx/debug/ColibriTests.build/sources" : {
+      "alwaysOutOfDate" : false,
+      "inputs" : [
+        {
+          "kind" : "virtual",
+          "name" : "<sources-file-list>"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/simon/ws/cc/colibri-stateless-swift/Tests/ColibriTests.swift"
+        }
+      ],
+      "outputFilePath" : "/Users/simon/ws/cc/colibri-stateless-swift/.build/arm64-apple-macosx/debug/ColibriTests.build/sources"
+    },
+    "/Users/simon/ws/cc/colibri-stateless-swift/.build/arm64-apple-macosx/debug/swift-version--58304C5D6DBC2206.txt" : {
+      "alwaysOutOfDate" : true,
+      "inputs" : [
+        {
+          "kind" : "virtual",
+          "name" : "<swift-get-version>"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/swiftc"
+        }
+      ],
+      "outputFilePath" : "/Users/simon/ws/cc/colibri-stateless-swift/.build/arm64-apple-macosx/debug/swift-version--58304C5D6DBC2206.txt"
+    }
+  }
+}

@@ -1,0 +1,4 @@
+module ColibriPackageTests {
+    header "/Users/simon/ws/cc/colibri-stateless-swift/.build/arm64-apple-macosx/debug/ColibriPackageTests.build/ColibriPackageTests-Swift.h"
+    requires objc
+}

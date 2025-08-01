@@ -1,0 +1,4 @@
+module CColibriMacOS {
+    umbrella "/Users/simon/ws/cc/colibri-stateless-swift/Sources/CColibri/include"
+    export *
+}

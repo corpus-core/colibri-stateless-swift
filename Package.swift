@@ -3,22 +3,33 @@ import PackageDescription
 
 let package = Package(
     name: "Colibri",
-    platforms: [.iOS(.v13), .macOS(.v10_15)],
+    platforms: [.iOS(.v13)],
     products: [
         .library(name: "Colibri", targets: ["Colibri"])
     ],
     targets: [
+        .binaryTarget(
+            name: "c4_swift",
+            path: "c4_swift.xcframework"
+        ),
         .target(
-            name: "Colibri",
+            name: "CColibriMacOS",
             dependencies: ["c4_swift"],
-            path: "src",
+            path: "Sources/CColibri",
+            sources: ["swift_storage_bridge.c"],
             publicHeadersPath: "include",
             cSettings: [
                 .headerSearchPath("include")
-            ]),            
-        .binaryTarget(
-            name: "c4_swift", 
-            path: "../../build/c4_swift.xcframework"
+            ]
+        ),
+        .target(
+            name: "Colibri",
+            dependencies: ["c4_swift", "CColibriMacOS"],
+            path: "Sources/Colibri",
+            sources: ["Colibri.swift"],
+            linkerSettings: [
+                .linkedLibrary("c++")
+            ]
         ),
         .testTarget(
             name: "ColibriTests",

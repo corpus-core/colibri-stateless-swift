@@ -1,0 +1,4 @@
+module Colibri {
+    header "/Users/simon/ws/cc/colibri-stateless-swift/.build/arm64-apple-macosx/debug/Colibri.build/Colibri-Swift.h"
+    requires objc
+}
