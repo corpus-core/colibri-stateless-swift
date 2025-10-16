@@ -56,10 +56,10 @@ typedef enum {
 } ssz_type_t;
 
 typedef enum {
-  SSZ_FLAG_NONE         = 0,
-  SSZ_FLAG_OPT_MASK     = 1, // value conains a bitmask of the fields to include in the JSON output
-  SSZ_FLAG_ZSTD_ENCODED = 2,
-  SSZ_FLAG_UINT         = 4, // Render bytes as uint in JSON (for boolean/numeric fields stored as bytes)
+  SSZ_FLAG_NONE     = 0,
+  SSZ_FLAG_OPT_MASK = 1, // value conains a bitmask of the fields to include in the JSON output
+  SSZ_FLAG_UINT     = 2, // Render bytes as uint in JSON (for boolean/numeric fields stored as bytes)
+  SSZ_FLAG_STRING   = 4, // Render bytes as string (for bytes fields stored as string)
 } ssz_flag_t;
 
 /** a SSZ Type Definition */
@@ -187,6 +187,11 @@ extern const ssz_def_t ssz_none;
     .name = property, .type = SSZ_TYPE_LIST, .def.vector = {.len  = max_len,   \
                                                             .type = &typePtr } \
   }
+#define SSZ_FLAG_LIST(property, typePtr, max_len, ssz_flags)                                       \
+  {                                                                                                \
+    .name = property, .type = SSZ_TYPE_LIST, .flags = ssz_flags, .def.vector = {.len  = max_len,   \
+                                                                                .type = &typePtr } \
+  }
 #define SSZ_OPT_LIST(property, typePtr, max_len)                                                           \
   {                                                                                                        \
     .name = property, .type = SSZ_TYPE_LIST, .flags = SSZ_FLAG_OPTIONAL, .def.vector = {.len  = max_len,   \
@@ -229,6 +234,7 @@ extern const ssz_def_t ssz_none;
 
 #define SSZ_BYTE                   ssz_uint8
 #define SSZ_BYTES(name, limit)     SSZ_LIST(name, ssz_uint8, limit)
+#define SSZ_STRING(name, limit)    SSZ_FLAG_LIST(name, ssz_uint8, limit, SSZ_FLAG_STRING)
 #define SSZ_BYTE_VECTOR(name, len) SSZ_VECTOR(name, ssz_uint8, len)
 #define SSZ_BYTES32(name)          SSZ_BYTE_VECTOR(name, 32)
 #define SSZ_ADDRESS(name)          SSZ_BYTE_VECTOR(name, 20)
@@ -255,7 +261,7 @@ void     ssz_add_uint32(ssz_builder_t* buffer, uint32_t value);
 void     ssz_add_uint16(ssz_builder_t* buffer, uint16_t value);
 void     ssz_add_uint8(ssz_builder_t* buffer, uint8_t value);
 ssz_ob_t ssz_from_json(json_t json, const ssz_def_t* def, c4_state_t* state);
-void     ssz_buffer_free(ssz_builder_t* buffer);
+void     ssz_builder_free(ssz_builder_t* buffer);
 
 static inline ssz_builder_t ssz_builder_from(ssz_ob_t val) {
   return (ssz_builder_t) {.def = val.def, .fixed = {.allocated = val.bytes.len, .data = val.bytes}, .dynamic = {0}};
