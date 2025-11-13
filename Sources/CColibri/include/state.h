@@ -526,6 +526,21 @@ c4_status_t c4_state_add_error(c4_state_t* state, const char* error);
   } while (0)
 
 /**
+ * **CHECK_JSON_CACHED(val, def, error_prefix)** - Cached JSON validation for large payloads.
+ *
+ * Uses json_validate_cached() which skips validation if the same payload+schema
+ * was recently validated successfully.
+ */
+#define CHECK_JSON_CACHED(val, def, error_prefix)                 \
+  do {                                                            \
+    const char* err = json_validate_cached(val, def, error_prefix); \
+    if (err) {                                                    \
+      ctx->state.error = (char*) err;                             \
+      return C4_ERROR;                                            \
+    }                                                             \
+  } while (0)
+
+/**
  * **CHECK_JSON_VERIFY(val, def, error_prefix)** - Validates JSON data and sets verification failure on error.
  *
  * Similar to CHECK_JSON but used in verification context. Sets ctx->success
@@ -550,6 +565,19 @@ c4_status_t c4_state_add_error(c4_state_t* state, const char* error);
   } while (0)
 
 /**
+ * **CHECK_JSON_VERIFY_CACHED(val, def, error_prefix)** - Cached variant for verification codepaths.
+ */
+#define CHECK_JSON_VERIFY_CACHED(val, def, error_prefix)           \
+  do {                                                             \
+    const char* err = json_validate_cached(val, def, error_prefix);  \
+    if (err) {                                                     \
+      ctx->state.error = (char*) err;                              \
+      ctx->success     = false;                                    \
+      return false;                                                \
+    }                                                              \
+  } while (0)
+
+/**
  * **RETRY_REQUEST(req)** - Marks current node as excluded and retries the request.
  *
  * This macro is used to retry a failed request with a different node.
@@ -568,14 +596,14 @@ c4_status_t c4_state_add_error(c4_state_t* state, const char* error);
  * }
  * ```
  */
-#define RETRY_REQUEST(req)                                       \
-  do {                                                           \
-    if (req->response_node_index < C4_MAX_NODES) {               \
-      req->node_exclude_mask |= (1 << req->response_node_index); \
-    }                                                            \
-    safe_free(req->response.data);                               \
-    req->response = NULL_BYTES;                                  \
-    return C4_PENDING;                                           \
+#define RETRY_REQUEST(req)                                                                                                                                                                    \
+  do {                                                                                                                                                                                        \
+    if (req->response_node_index < C4_MAX_NODES)                                                                                                                                              \
+      req->node_exclude_mask |= (1 << req->response_node_index);                                                                                                                              \
+    log_warn("   [retry] request (%s) returned invalid response (%r) from node index=%d, retrying", c4_req_info(req->type, req->url, req->payload), req->response, req->response_node_index); \
+    safe_free(req->response.data);                                                                                                                                                            \
+    req->response = NULL_BYTES;                                                                                                                                                               \
+    return C4_PENDING;                                                                                                                                                                        \
   } while (0)
 
 #ifdef TEST
