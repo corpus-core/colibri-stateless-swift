@@ -1234,7 +1234,7 @@ uint32_t c4_get_current_version_number(void);
  * @param chain_id The blockchain chain ID
  * @param prover_flags Flags for proof generation (see prover flag types)
  * @param verify_flags Flags for verification (e.g., 2 for `VERIFY_FLAG_PAP`)
- * @param use_remote_prover If non-zero, request proof from a remote prover server instead of generating locally
+ * @param prover_mode proof generation mode: 0 = local, 1 = remote, 2 = hybrid (header proof from server, execution data from RPC provider)
  * @return A new RPC context pointer, or NULL if creation failed
  *
  * **Example**:
@@ -1245,11 +1245,11 @@ uint32_t c4_get_current_version_number(void);
  *     1,    // Ethereum Mainnet
  *     0,    // No special prover flags
  *     0,    // No special verify flags
- *     1     // Use remote prover
+ *     2     // Use hybrid prover mode
  * );
  * ```
  */
-void* c4_create_rpc_ctx(char* method, char* params, uint64_t chain_id, uint32_t prover_flags, uint32_t verify_flags, int use_remote_prover);
+void* c4_create_rpc_ctx(char* method, char* params, uint64_t chain_id, uint32_t prover_flags, uint32_t verify_flags, int prover_mode);
 
 /**
  * Sets a trusted checkpoint for a chain (context-independent).
@@ -1273,6 +1273,19 @@ void c4_set_checkpoint(uint64_t chain_id, const char* trusted_checkpoint);
  * @param witness_keys hex string with "0x" prefix (e.g. "0xabcd..."), or NULL to clear
  */
 void c4_rpc_set_witness_keys(void* ctx, const char* witness_keys);
+
+/**
+ * Sets comma-separated RPC and Beacon API URLs for proxy mode.
+ *
+ * When the prover mode is `C4_PROVER_MODE_PROXY` (3), the client supplies its own
+ * RPC and Beacon API endpoints. Call this after `c4_create_rpc_ctx()` and before the
+ * first `c4_rpc_execute_json_status()`.
+ *
+ * @param ctx The RPC context created by `c4_create_rpc_ctx()`
+ * @param rpc_urls comma-separated HTTPS RPC endpoint URLs, or NULL
+ * @param beacon_urls comma-separated Beacon API base URLs, or NULL
+ */
+void c4_rpc_set_proxy_urls(void* ctx, const char* rpc_urls, const char* beacon_urls);
 
 /**
  * Executes one step of the unified RPC state machine.

@@ -202,6 +202,16 @@ public enum PrivacyMode: String, CaseIterable {
     case basic
 }
 
+// MARK: - Prover Mode
+/// Proof generation mode controlling how proofs are built and verified.
+public enum ProverMode: Int, CaseIterable {
+    case local = 0
+    case remote = 1
+    case hybrid = 2
+    case proxy = 3
+    case lightClient = 4
+}
+
 // MARK: - Method Types
 public enum MethodType: Int, CaseIterable {
     case UNKNOWN = 0
@@ -235,11 +245,15 @@ public class Colibri {
     public var zkProof: Bool = false
     /// PAP mode; .basic sets verify flag for Pragmatic Adaptive Privacy.
     public var privacyMode: PrivacyMode = .none
+    /// Proof generation mode. nil = auto-detect (remote if provers configured, else local).
+    public var proverMode: ProverMode? = nil
     /// Optional witness signer keys (hex-encoded, 0x-prefixed) for sync committee signing.
     public var checkpointWitnessKeys: String? = nil
 
     /// Optional request handler for mocking HTTP requests in tests
     public var requestHandler: RequestHandler?
+
+    private var lightClientTimer: DispatchSourceTimer?
 
     public init() {}
 
@@ -431,12 +445,23 @@ public class Colibri {
         defer { free(mPtr); free(pPtr) }
 
         let proverFlags: UInt32 = (includeCode ? 1 : 0) | (useAccesslist ? (1 << 6) : 0) | (zkProof ? (1 << 7) : 0)
-        let useRemote: Int32 = provers.isEmpty ? 0 : 1
+        let resolvedMode = proverMode ?? (provers.isEmpty ? .local : .remote)
+        let nativeMode: Int32 = Int32((resolvedMode == .lightClient ? ProverMode.hybrid : resolvedMode).rawValue)
 
-        guard let ctx = c4_create_rpc_ctx(mPtr, pPtr, chainId, proverFlags, getVerifyFlags(), useRemote) else {
+        guard let ctx = c4_create_rpc_ctx(mPtr, pPtr, chainId, proverFlags, getVerifyFlags(), nativeMode) else {
             throw ColibriError.contextCreationFailed
         }
         defer { c4_free_rpc_ctx(ctx) }
+
+        if resolvedMode == .proxy {
+            let rpcCsv = eth_rpcs.joined(separator: ",")
+            let beaconCsv = beacon_apis.joined(separator: ",")
+            rpcCsv.withCString { rpcPtr in
+                beaconCsv.withCString { beaconPtr in
+                    c4_rpc_set_proxy_urls(ctx, rpcPtr, beaconPtr)
+                }
+            }
+        }
 
         if let checkpoint = trustedCheckpoint {
             checkpoint.withCString { c4_set_checkpoint(chainId, $0) }
@@ -639,6 +664,42 @@ public class Colibri {
                 }
             }
         }
+    }
+
+    /// Starts background polling to keep the block header cache warm.
+    /// Useful for `.lightClient` mode.
+    ///
+    /// By default polls `eth_getBlockHeader("latest")` which fetches only the
+    /// compact header proof. Set `fullBlock` to `true` to poll
+    /// `eth_getBlockByNumber("latest")` instead -- useful when many
+    /// `eth_getTransactionByHash` / `eth_getTransactionReceipt` calls follow,
+    /// since those need the full block data.
+    ///
+    /// - Parameters:
+    ///   - interval: polling interval in seconds (default: 12 = one Ethereum slot)
+    ///   - fullBlock: if true, fetch the full block instead of just the header (default: false)
+    public func startLightClient(interval: TimeInterval = 12.0, fullBlock: Bool = false) {
+        stopLightClient()
+        let method = fullBlock ? "eth_getBlockByNumber" : "eth_getBlockHeader"
+        let params = fullBlock ? "[\"latest\",false]" : "[\"latest\"]"
+        let timer = DispatchSource.makeTimerSource(queue: DispatchQueue.global(qos: .utility))
+        timer.schedule(deadline: .now(), repeating: interval)
+        timer.setEventHandler { [weak self] in
+            guard let self = self else { return }
+            Task {
+                do {
+                    _ = try await self.rpc(method: method, params: params)
+                } catch { }
+            }
+        }
+        timer.resume()
+        lightClientTimer = timer
+    }
+
+    /// Stops background light client polling started by `startLightClient`.
+    public func stopLightClient() {
+        lightClientTimer?.cancel()
+        lightClientTimer = nil
     }
 
     // Add the fetchRpc helper function
