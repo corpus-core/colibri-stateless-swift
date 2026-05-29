@@ -193,7 +193,8 @@ typedef enum {
   C4_DATA_TYPE_REST_API    = 2, ///< Request is handled by a generic REST API
   C4_DATA_TYPE_INTERN      = 3, ///< Request is handled internally within the prover server
   C4_DATA_TYPE_PROVER      = 4, ///< Request is handled by the prover server
-  C4_DATA_TYPE_CHECKPOINTZ = 5  ///< Request is handled by a checkpointz server
+  C4_DATA_TYPE_CHECKPOINTZ = 5, ///< Request is handled by a checkpointz server
+  C4_DATA_TYPE_CACHE       = 6  ///< In-process snapshot of locally cached data; `id` identifies the entry, `response` carries the cached bytes (no I/O)
 
 } data_request_type_t;
 
@@ -296,11 +297,13 @@ void c4_request_free(data_request_t* req);
  * Caller must finish the JSON object with `}`.
  *
  * @param payload growable buffer; current content must not include the closing `}`
- * @param chain_id chain used for `c4_get_client_state`
+ * @param client_state pre-captured snapshot of the chain's client_state; pass `NULL_BYTES`
+ *                    to fall back to `c4_get_client_state(chain_id)` (legacy behaviour)
+ * @param chain_id chain used for fallback `c4_get_client_state` when no snapshot is given
  * @param flags bitmask using `C4_PROVER_REQ_FLAG_*` (same bit layout as `prover_flags_t`)
  * @param witness_key witness bytes for `signers` (may be `NULL_BYTES`)
  */
-void c4_append_prover_request_props(buffer_t* payload, chain_id_t chain_id, uint32_t flags, bytes_t witness_key);
+void c4_append_prover_request_props(buffer_t* payload, bytes_t client_state, chain_id_t chain_id, uint32_t flags, bytes_t witness_key);
 
 /**
  * Finds a data request by its unique identifier.
@@ -369,6 +372,21 @@ data_request_t* c4_state_get_pending_request(c4_state_t* state);
  * @return Always returns C4_ERROR
  */
 c4_status_t c4_state_add_error(c4_state_t* state, const char* error);
+
+/**
+ * Moves all pending data requests from `src` to `dst`.
+ *
+ * Appends `dst`'s existing request list to the tail of `src`'s request list and then
+ * transfers ownership of the resulting list to `dst`. `src->requests` is set to NULL.
+ * Use this when forwarding requests from a temporary sub-context (e.g. a nested
+ * `verify_ctx_t` used for PAP sub-proofs) to its parent so the host can fulfil them.
+ *
+ * No-op when `src->requests` is NULL.
+ *
+ * @param dst Destination state (receives the merged request list)
+ * @param src Source state (request list is detached)
+ */
+void c4_state_take_requests(c4_state_t* dst, c4_state_t* src);
 
 /**
  * **TRY_ASYNC(fn)** - Executes an async function and returns early if not successful.

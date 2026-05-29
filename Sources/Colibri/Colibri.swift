@@ -236,7 +236,7 @@ public class Colibri {
     public var eth_rpcs: [String] = []
     public var beacon_apis: [String] = []
     public var provers: [String] = ["https://c4.incubed.net"]
-    public var checkpointz: [String] = ["https://sync-mainnet.beaconcha.in", "https://beaconstate.info", "https://sync.invis.tools", "https://beaconstate.ethstaker.cc"]
+    public var checkpointz: [String] = []
     /// TEE RPC endpoints for eth_getProof (privacy-preserving storage reads).
     public var obliviousNodes: [String] = []
     public var trustedCheckpoint: String? = nil
@@ -252,6 +252,22 @@ public class Colibri {
     /// Optional witness signer keys (hex-encoded, 0x-prefixed) for sync committee signing.
     public var checkpointWitnessKeys: String? = nil
 
+    /// If true, the verifier skips the Weak Subjectivity Period check
+    /// (`VERIFY_FLAG_SKIP_WSP_CHECK`, bit `1 << 7`). SECURITY: only safe when another
+    /// trust anchor (witness signatures, hard-coded checkpoint, signed package) is in
+    /// place; disabling raises the risk of long-range attacks across periods older than
+    /// the WSP. Default: false.
+    public var skipWspCheck: Bool = false
+
+    /// Maximum age (in seconds) accepted for a proof whose request uses the
+    /// `"latest"` block tag. The verifier compares `block.timestamp` from the
+    /// proof against `now - maxLatestAgeSeconds`; older proofs are rejected
+    /// with `"proof for latest too old"`. Set to `0` to disable the check
+    /// (e.g. when working with older proof formats that lack a block context).
+    /// Currently active for `eth_call`, `eth_estimateGas`, and
+    /// `colibri_simulateTransaction`. Default: 60 (~5 Ethereum slots).
+    public var maxLatestAgeSeconds: UInt64 = 60
+
     /// Optional request handler for mocking HTTP requests in tests
     public var requestHandler: RequestHandler?
 
@@ -259,18 +275,57 @@ public class Colibri {
 
     public init() {}
 
+    /// Default checkpointz URLs for supported chains.
+    public static func defaultCheckpointz(for chainId: UInt64) -> [String] {
+        switch chainId {
+        case 1:
+            return [
+                "https://sync-mainnet.beaconcha.in",
+                "https://beaconstate.info",
+                "https://sync.invis.tools",
+                "https://beaconstate.ethstaker.cc",
+            ]
+        case 11155111:
+            return [
+                "https://sepolia.beaconstate.info",
+                "https://checkpoint-sync.sepolia.ethpandaops.io",
+            ]
+        case 100:
+            return ["https://checkpoint.gnosischain.com"]
+        case 10200:
+            return ["https://checkpoint.chiadochain.net"]
+        default:
+            return []
+        }
+    }
+
     public static func initialize() {
         // Placeholder for initialization if needed
     }
 
     // MARK: - Verify Flags
 
-    /// Returns verify flags (e.g. VERIFY_FLAG_PAP) derived from privacyMode. Centralized so future flags can be added in one place.
+    /// Computes the lower bound for `block.timestamp` accepted on `"latest"`
+    /// proofs as `now - maxLatestAgeSeconds`. Returns `0` when the host
+    /// disables the check (`maxLatestAgeSeconds == 0`). The platform clock is
+    /// read here in the binding so the C/WASM core stays clock-free.
+    private func getMinLatestBlockTs() -> UInt64 {
+        guard maxLatestAgeSeconds > 0 else { return 0 }
+        let now = UInt64(Date().timeIntervalSince1970)
+        return now > maxLatestAgeSeconds ? (now - maxLatestAgeSeconds) : 0
+    }
+
+    /// Returns verify flags (VERIFY_FLAG_PAP, VERIFY_FLAG_OBLIVIOUS, VERIFY_FLAG_SKIP_WSP_CHECK)
+    /// derived from privacyMode, obliviousNodes and skipWspCheck. Centralized so future flags
+    /// can be added in one place.
     private func getVerifyFlags() -> UInt32 {
         let pap = privacyMode == .basic || !obliviousNodes.isEmpty
         var flags: UInt32 = pap ? 2 : 0
         if !obliviousNodes.isEmpty {
             flags |= 1 << 6
+        }
+        if skipWspCheck {
+            flags |= 1 << 7
         }
         return flags
     }
@@ -404,6 +459,8 @@ public class Colibri {
         }
         defer { c4_verify_free_ctx(ctx) }
 
+        c4_verify_set_min_latest_block_ts(ctx, getMinLatestBlockTs())
+
         var iteration = 0
         let _ = 10 // maxIterations defined but not used in while true loop
         while true {
@@ -482,6 +539,8 @@ public class Colibri {
         if let keys = checkpointWitnessKeys, !keys.isEmpty {
             keys.withCString { c4_rpc_set_witness_keys(ctx, $0) }
         }
+
+        c4_rpc_set_min_latest_block_ts(ctx, getMinLatestBlockTs())
 
         while true {
             guard let statusPtr = c4_rpc_execute_json_status(ctx) else {
@@ -574,7 +633,10 @@ public class Colibri {
                     let requestType = request["type"] as? String
                     let servers: [String]
                     if requestType == "checkpointz" {
-                        servers = self.checkpointz
+                        let configured = self.checkpointz.isEmpty
+                            ? Colibri.defaultCheckpointz(for: self.chainId)
+                            : self.checkpointz
+                        servers = configured + self.beacon_apis
                     } else if requestType == "prover" {
                         servers = self.provers
                     } else if requestType == "beacon_api" && useProverFallback && !self.provers.isEmpty {

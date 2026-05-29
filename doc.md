@@ -185,7 +185,20 @@ public class Colibri {
     
     /// PAP (Pragmatic Adaptive Privacy) mode: .none (default) or .basic
     public var privacyMode: PrivacyMode
-    
+
+    /// If true, skip the Weak Subjectivity Period check (VERIFY_FLAG_SKIP_WSP_CHECK, bit 1 << 7).
+    /// SECURITY: only safe with an alternative trust anchor (witness signatures, hard-coded
+    /// checkpoint, signed package); raises the risk of long-range attacks across periods older
+    /// than the WSP. Default: false.
+    public var skipWspCheck: Bool
+
+    /// Maximum age (in seconds) accepted for a proof whose request uses the
+    /// `"latest"` block tag. The verifier rejects proofs whose block timestamp
+    /// is older than `now - maxLatestAgeSeconds`. Set to `0` to disable.
+    /// Currently active for `eth_call`, `eth_estimateGas`, and
+    /// `colibri_simulateTransaction`. Default: 60.
+    public var maxLatestAgeSeconds: UInt64
+
     /// Initialization
     public init()
     
@@ -235,6 +248,43 @@ let colibri = Colibri()
 colibri.chainId = 1
 colibri.privacyMode = .basic
 ```
+
+### Weak Subjectivity Period check
+
+Whenever a sync crosses the **Weak Subjectivity Period (WSP)** -- typically ~2 to 4 months on Ethereum mainnet -- the verifier anchors the highest finalized header against an external `checkpointz` / Beacon API endpoint. The check applies to all three sync paths: verifier-driven Light Client updates, prover-supplied `LCSyncData`, and prover-supplied `ZKSyncData`. For `ZKSyncData` the verifier prefers configured **witness signatures** (`checkpointWitnessKeys` + matching signatures from the prover) and only falls back to `checkpointz` when no witness anchor is available.
+
+- `skipWspCheck` (`Bool`, default `false`) -- sets `VERIFY_FLAG_SKIP_WSP_CHECK` (bit `1 << 7`) and disables the round-trip. **SECURITY:** only safe with an alternative trust anchor; raises the risk of long-range attacks across periods older than the WSP. See the [threat model -- long range attacks](https://corpus-core.gitbook.io/specification-colibri-stateless/specifications/ethereum/threat-model) for details.
+
+```swift
+let colibri = Colibri()
+colibri.chainId = 1
+colibri.skipWspCheck = true  // only safe with an alternative trust anchor
+```
+
+### Freshness window for `latest` proofs
+
+Proofs that target the **`latest`** block tag remain cryptographically valid forever -- without a freshness window, a months-old proof could still be replayed as "current". The Swift binding therefore reads the wallclock and forwards `now - maxLatestAgeSeconds` to the verifier, which rejects proofs whose block timestamp is older with `"proof for latest too old"`.
+
+The gate covers the following RPC methods:
+
+- **EVM:** `eth_call`, `eth_estimateGas`, `colibri_simulateTransaction`
+- **Account:** `eth_getBalance`, `eth_getCode`, `eth_getStorageAt`, `eth_getTransactionCount`, `eth_getProof`
+- **Block / header:** `eth_getBlockByNumber`, `eth_getBlockHeader`, `eth_blobBaseFee`, `eth_maxPriorityFeePerGas`
+- **Implicit-latest:** `eth_blockNumber`
+
+`eth_getLogs` is **not** covered yet (tracked in issue #128). Account methods rely on a slim `timestamp` leaf inside the state proof which is only emitted by **prover version ≥ 1.1.27**; against older provers the verifier fails closed (`"cannot verify freshness of latest block without block context"`).
+
+- `maxLatestAgeSeconds` (`UInt64`, default `60` ≈ 5 Ethereum slots) -- upper bound on the accepted age. Set to `0` to disable the check (e.g. when using legacy proof formats that do not embed a block context).
+
+> **Caveat:** the gate fires only on `"latest"` (not `"safe"`/`"finalized"`). If the host wallclock is behind `maxLatestAgeSeconds` (devices without configured time, sandboxed simulators), the lower bound clamps to `0` and the check is silently disabled. Make sure your runtime has a synced clock or set `maxLatestAgeSeconds = 0` explicitly to acknowledge this state.
+
+```swift
+let colibri = Colibri()
+colibri.chainId = 1
+colibri.maxLatestAgeSeconds = 30 // tighter window for latency-sensitive flows
+```
+
+> **PAP mode:** the freshness check also applies to PAP, where the call proof arrives via `colibri_proofCall` (same proof structure as a direct `eth_call`). This requires a prover that embeds the block context (≥ 1.1.15); against an older PAP proof without a block timestamp the check fails closed (`"cannot verify freshness of latest block without block context"`). Set `maxLatestAgeSeconds = 0` to opt out.
 
 ### Privacy-preserving `eth_call` (oblivious + PAP + hybrid)
 

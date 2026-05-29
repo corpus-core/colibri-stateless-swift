@@ -1003,7 +1003,12 @@ void c4_req_set_error(void* req_ptr, char* error, uint16_t node_index);
  * @param chain_id The blockchain chain ID (must match proof)
  * @param trusted_checkpoint Optional trusted checkpoint as hex string (0x-prefixed, 66 chars),
  *                           or NULL/empty string to use the default checkpoint for this chain
- * @param flags Verify flags (e.g. 2 for VERIFY_FLAG_PAP). Use 0 for default.
+ * @param flags Verify flags bitmask. Common values: `2` = `VERIFY_FLAG_PAP`,
+ *              `64` = `VERIFY_FLAG_OBLIVIOUS`, `128` = `VERIFY_FLAG_SKIP_WSP_CHECK`.
+ *              `VERIFY_FLAG_SKIP_WSP_CHECK` disables the Weak Subjectivity Period anchor
+ *              against `checkpointz` for prover-supplied or self-fetched sync committee
+ *              data. SECURITY: only safe when another trust anchor (witness signatures,
+ *              hard-coded checkpoint, signed package) is in place. Use `0` for default.
  * @return A new verification context pointer, or NULL if creation failed
  *
  * **Trusted Checkpoints**:
@@ -1133,6 +1138,21 @@ char* c4_verify_execute_json_status(void* ctx);
 void c4_verify_free_ctx(void* ctx);
 
 /**
+ * Sets the lower bound for `block.timestamp` on `"latest"` requests.
+ *
+ * The verifier rejects proofs whose block timestamp is older than `ts` for
+ * `eth_call`, `eth_estimateGas`, and `colibri_simulateTransaction` when the
+ * request uses the `"latest"` block tag. Pass `0` to disable the check.
+ * The host typically computes `ts = now - max_age_seconds` from the platform
+ * wallclock; the C library never reads the wallclock itself so the check
+ * works the same way on native, WASM, and embedded targets.
+ *
+ * @param ctx The verification context created by `c4_verify_create_ctx()`
+ * @param ts Lower bound as Unix timestamp in seconds (`0` disables the check)
+ */
+void c4_verify_set_min_latest_block_ts(void* ctx, uint64_t ts);
+
+/**
  * Queries whether a specific RPC method is supported and how it should be handled.
  *
  * Not all Ethereum RPC methods can be cryptographically proven. This function returns
@@ -1143,7 +1163,8 @@ void c4_verify_free_ctx(void* ctx);
  * @param method The Ethereum RPC method name (e.g., "eth_getBalance")
  * @param params The method parameters as a JSON array string (e.g., `[{"to":"0x...","data":"0x..."}, "latest"]`),
  *               or NULL if not available. Used in PAP mode to check cached data availability.
- * @param flags Verify flags (e.g. 2 for VERIFY_FLAG_PAP / PAP basic mode). Use 0 for default.
+ * @param flags Verify flags bitmask. Common values: `2` = `VERIFY_FLAG_PAP`,
+ *              `64` = `VERIFY_FLAG_OBLIVIOUS`, `128` = `VERIFY_FLAG_SKIP_WSP_CHECK`. Use `0` for default.
  * @return Method support type (see table below)
  *
  * **Return Values**:
@@ -1233,7 +1254,10 @@ uint32_t c4_get_current_version_number(void);
  * @param params The method parameters as a JSON array string
  * @param chain_id The blockchain chain ID
  * @param prover_flags Flags for proof generation (see prover flag types)
- * @param verify_flags Flags for verification (e.g., 2 for `VERIFY_FLAG_PAP`)
+ * @param verify_flags Flags for verification bitmask. Common values: `2` = `VERIFY_FLAG_PAP`,
+ *                     `64` = `VERIFY_FLAG_OBLIVIOUS`, `128` = `VERIFY_FLAG_SKIP_WSP_CHECK`
+ *                     (SECURITY: disables the Weak Subjectivity Period anchor; only safe with an
+ *                     alternative trust anchor such as witness signatures or a hard-coded checkpoint).
  * @param prover_mode proof generation mode: 0 = local, 1 = remote, 2 = hybrid (header proof from server, execution data from RPC provider)
  * @return A new RPC context pointer, or NULL if creation failed
  *
@@ -1286,6 +1310,21 @@ void c4_rpc_set_witness_keys(void* ctx, const char* witness_keys);
  * @param beacon_urls comma-separated Beacon API base URLs, or NULL
  */
 void c4_rpc_set_proxy_urls(void* ctx, const char* rpc_urls, const char* beacon_urls);
+
+/**
+ * Sets the lower bound for `block.timestamp` on `"latest"` requests.
+ *
+ * The verifier rejects proofs whose block timestamp is older than `ts` for
+ * `eth_call`, `eth_estimateGas`, and `colibri_simulateTransaction` when the
+ * request uses the `"latest"` block tag. Pass `0` to disable the check.
+ * The host typically computes `ts = now - max_age_seconds` from the platform
+ * wallclock; the C library never reads the wallclock itself so the check
+ * works the same way on native, WASM, and embedded targets.
+ *
+ * @param ctx The RPC context created by `c4_create_rpc_ctx()`
+ * @param ts Lower bound as Unix timestamp in seconds (`0` disables the check)
+ */
+void c4_rpc_set_min_latest_block_ts(void* ctx, uint64_t ts);
 
 /**
  * Executes one step of the unified RPC state machine.
