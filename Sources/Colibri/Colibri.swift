@@ -185,13 +185,17 @@ public struct DataRequest {
     public let payload: [String: Any]?
     public let encoding: String?
     public let type: String?
-    
-    public init(url: String, method: String, payload: [String: Any]? = nil, encoding: String? = nil, type: String? = nil) {
+    /// Cache freshness bound in seconds (0 = no hint). Forwarded as a `Cache-Control: max-age=<ttl>`
+    /// request header so a shared cache/CDN never returns a response older than this bound.
+    public let ttl: UInt64
+
+    public init(url: String, method: String, payload: [String: Any]? = nil, encoding: String? = nil, type: String? = nil, ttl: UInt64 = 0) {
         self.url = url
         self.method = method
         self.payload = payload
         self.encoding = encoding
         self.type = type
+        self.ttl = ttl
     }
 }
 
@@ -232,10 +236,12 @@ public enum MethodType: Int, CaseIterable {
 }
 
 public class Colibri {
-    // Configuration with defaults
+    // Configuration with defaults.
+    // Endpoint arrays default to empty; when empty at request time, per-chain fallbacks
+    // from defaultProvers/defaultEthRpcs/defaultBeaconApis/defaultCheckpointz are used.
     public var eth_rpcs: [String] = []
     public var beacon_apis: [String] = []
-    public var provers: [String] = ["https://c4.incubed.net"]
+    public var provers: [String] = []
     public var checkpointz: [String] = []
     /// TEE RPC endpoints for eth_getProof (privacy-preserving storage reads).
     public var obliviousNodes: [String] = []
@@ -275,20 +281,115 @@ public class Colibri {
 
     public init() {}
 
+    /// Default prover URLs for supported chains.
+    public static func defaultProvers(for chainId: UInt64) -> [String] {
+        switch chainId {
+        case 1:
+            return [
+                "https://mainnet.colibri-proof.tech",
+                "https://mainnet-prover.incubed.net",
+                "https://mainnet.colimind.com",
+            ]
+        case 11155111:
+            return [
+                "https://sepolia.colibri-proof.tech",
+                "https://sepolia-prover.incubed.net",
+                "https://sepolia.colimind.com",
+            ]
+        case 100:
+            return [
+                "https://gnosis.colibri-proof.tech",
+                "https://gnosis-prover.incubed.net",
+                "https://gnosis.colimind.com",
+            ]
+        case 10200:
+            return ["https://chiado.colibri-proof.tech"]
+        default:
+            return ["https://c4.incubed.net"]
+        }
+    }
+
+    /// Default Ethereum RPC URLs for supported chains (fallback order: colibri-proof.tech first, public as fallback).
+    public static func defaultEthRpcs(for chainId: UInt64) -> [String] {
+        switch chainId {
+        case 1:
+            return [
+                "https://mainnet.colibri-proof.tech/execution",
+                "https://eth.drpc.org",
+                "https://ethereum-rpc.publicnode.com",
+                "https://singapore.rpc.blxrbdn.com",
+            ]
+        case 11155111:
+            return [
+                "https://sepolia.colibri-proof.tech/execution",
+                "https://sepolia.drpc.org",
+                "https://ethereum-sepolia-rpc.publicnode.com",
+                "https://sepolia.gateway.tenderly.co",
+            ]
+        case 100:
+            return [
+                "https://gnosis.colibri-proof.tech/execution",
+                "https://rpc.gnosischain.com",
+                "https://rpc.gnosis.gateway.fm",
+                "https://gnosis-rpc.publicnode.com",
+            ]
+        case 10200:
+            return [
+                "https://rpc.chiado.gnosis.gateway.fm",
+                "https://rpc.chiadochain.net",
+                "https://gnosis-chiado-rpc.publicnode.com",
+            ]
+        default:
+            return []
+        }
+    }
+
+    /// Default beacon API URLs for supported chains (fallback order: colibri-proof.tech first, public as fallback).
+    public static func defaultBeaconApis(for chainId: UInt64) -> [String] {
+        switch chainId {
+        case 1:
+            return [
+                "https://mainnet.colibri-proof.tech/consensus",
+                "https://gateway.tenderly.co/public/mainnet",
+                "https://ethereum-beacon-api.publicnode.com",
+            ]
+        case 11155111:
+            return [
+                "https://sepolia.colibri-proof.tech/consensus",
+                "https://ethereum-sepolia-beacon-api.publicnode.com",
+            ]
+        case 100:
+            return [
+                "https://gnosis.colibri-proof.tech/consensus",
+                "https://rpc-gbc.gnosischain.com",
+                "https://gnosis-beacon-api.publicnode.com",
+            ]
+        case 10200:
+            return [
+                "https://rpc-gbc.chiadochain.net",
+            ]
+        default:
+            return []
+        }
+    }
+
     /// Default checkpointz URLs for supported chains.
     public static func defaultCheckpointz(for chainId: UInt64) -> [String] {
         switch chainId {
         case 1:
             return [
                 "https://sync-mainnet.beaconcha.in",
-                "https://beaconstate.info",
-                "https://sync.invis.tools",
+                "https://mainnet.checkpoint.sigp.io",
+                "https://mainnet-checkpoint-sync.attestant.io",
+                "https://beaconstate-mainnet.chainsafe.io",
+                "https://mainnet-checkpoint-sync.stakely.io",
+                "https://checkpointz.pietjepuk.net",
                 "https://beaconstate.ethstaker.cc",
             ]
         case 11155111:
             return [
-                "https://sepolia.beaconstate.info",
                 "https://checkpoint-sync.sepolia.ethpandaops.io",
+                "https://beaconstate-sepolia.chainsafe.io",
             ]
         case 100:
             return ["https://checkpoint.gnosischain.com"]
@@ -515,6 +616,13 @@ public class Colibri {
         defer { free(mPtr); free(pPtr) }
 
         let proverFlags: UInt32 = (includeCode ? 1 : 0) | (useAccesslist ? (1 << 6) : 0) | (zkProof ? (1 << 7) : 0)
+        // Base prover-mode auto-detection on the user-configured `provers` array,
+        // NOT on the per-chain default fallback. Consumers passing `[]` explicitly
+        // signal "no remote prover" -- if we consulted the fallback here, any
+        // construction with default settings would silently switch to REMOTE and
+        // set `VERIFY_FLAG_REMOTE_PROVER`, breaking flows that depend on the
+        // local-only path (e.g. PAP pending-tx lookups returning null from cache
+        // without any network round-trip).
         let resolvedMode = proverMode ?? (provers.isEmpty ? .local : .remote)
         let nativeMode: Int32 = Int32((resolvedMode == .lightClient ? ProverMode.hybrid : resolvedMode).rawValue)
 
@@ -524,8 +632,10 @@ public class Colibri {
         defer { c4_free_rpc_ctx(ctx) }
 
         if resolvedMode == .proxy {
-            let rpcCsv = eth_rpcs.joined(separator: ",")
-            let beaconCsv = beacon_apis.joined(separator: ",")
+            let effEthRpcs = eth_rpcs.isEmpty ? Colibri.defaultEthRpcs(for: chainId) : eth_rpcs
+            let effBeaconApis = beacon_apis.isEmpty ? Colibri.defaultBeaconApis(for: chainId) : beacon_apis
+            let rpcCsv = effEthRpcs.joined(separator: ",")
+            let beaconCsv = effBeaconApis.joined(separator: ",")
             rpcCsv.withCString { rpcPtr in
                 beaconCsv.withCString { beaconPtr in
                     c4_rpc_set_proxy_urls(ctx, rpcPtr, beaconPtr)
@@ -626,6 +736,16 @@ public class Colibri {
                     if delayMs > 0 {
                         try? await Task.sleep(nanoseconds: delayMs * 1_000_000)
                     }
+
+                    // Cache freshness bound in seconds, forwarded below as `Cache-Control: max-age`.
+                    let ttlSeconds: UInt64
+                    if let ttlNum = request["ttl"] as? NSNumber {
+                        ttlSeconds = ttlNum.uint64Value
+                    } else if let ttlStr = request["ttl"] as? String, let v = UInt64(ttlStr) {
+                        ttlSeconds = v
+                    } else {
+                        ttlSeconds = 0
+                    }
                     
                     // Convert exclude_mask from String to Int
                     let excludeMask: Int
@@ -642,26 +762,29 @@ public class Colibri {
                         return
                     }
                     
-                    // Determine server list based on the flag and request type
+                    // Determine server list based on the flag and request type.
+                    // Empty user-configured arrays fall back to the per-chain defaults.
+                    let effProvers = self.provers.isEmpty ? Colibri.defaultProvers(for: self.chainId) : self.provers
+                    let effEthRpcs = self.eth_rpcs.isEmpty ? Colibri.defaultEthRpcs(for: self.chainId) : self.eth_rpcs
+                    let effBeaconApis = self.beacon_apis.isEmpty ? Colibri.defaultBeaconApis(for: self.chainId) : self.beacon_apis
+                    let effCheckpointz = self.checkpointz.isEmpty ? Colibri.defaultCheckpointz(for: self.chainId) : self.checkpointz
+
                     let requestType = request["type"] as? String
                     let servers: [String]
                     if requestType == "checkpointz" {
-                        let configured = self.checkpointz.isEmpty
-                            ? Colibri.defaultCheckpointz(for: self.chainId)
-                            : self.checkpointz
-                        servers = configured + self.beacon_apis
+                        servers = effCheckpointz + effBeaconApis
                     } else if requestType == "prover" {
-                        servers = self.provers
-                    } else if requestType == "beacon_api" && useProverFallback && !self.provers.isEmpty {
-                        servers = self.provers
+                        servers = effProvers
+                    } else if requestType == "beacon_api" && useProverFallback && !effProvers.isEmpty {
+                        servers = effProvers
                     } else if requestType == "beacon_api" {
-                        servers = self.beacon_apis
+                        servers = effBeaconApis
                     } else if let payload = request["payload"] as? [String: Any],
                               payload["method"] as? String == "eth_getProof",
                               !self.obliviousNodes.isEmpty {
                         servers = self.obliviousNodes
                     } else {
-                        servers = self.eth_rpcs
+                        servers = effEthRpcs
                     }
                     
                     // 🎯 MOCK SUPPORT: Check if request handler is set
@@ -672,7 +795,8 @@ public class Colibri {
                             method: method,
                             payload: request["payload"] as? [String: Any],
                             encoding: request["encoding"] as? String,
-                            type: requestType
+                            type: requestType,
+                            ttl: ttlSeconds
                         )
                         
                         do {
@@ -730,6 +854,11 @@ public class Colibri {
                                 urlRequest.setValue("application/json", forHTTPHeaderField: "Content-Type")
                                 let payloadData = try JSONSerialization.data(withJSONObject: payload)
                                 urlRequest.httpBody = payloadData
+                            }
+
+                            // Forward the cache freshness bound to shared caches/CDNs.
+                            if ttlSeconds > 0 {
+                                urlRequest.setValue("max-age=\(ttlSeconds)", forHTTPHeaderField: "Cache-Control")
                             }
                             
                             let (responseData, response) = try await URLSession.shared.data(for: urlRequest)
