@@ -24,8 +24,9 @@
 #ifndef C4_VERSION_H
 #define C4_VERSION_H
 
-#define VERSION_MAJOR 0
-#define VERSION_MINOR 2
+// Definition of the request container version
+#define VERSION_MAJOR 1 // POST Clamsterdam Types
+#define VERSION_MINOR 1 // proof-union reorder: LogsCompleteness next to Logs, Sync last; witnessProof on ETH_EL_PROOF_UNION
 #define VERSION_PATCH 0
 #define CHAIN_TYPE    1 // ETH=1
 
@@ -55,8 +56,16 @@ extern const char* c4_client_version;
  */
 C4_VERSION_PURE uint32_t c4_current_version_number(void);
 
+/**
+ * Packs major, minor, and patch into a single compare-friendly integer.
+ *
+ * @param major major version (clamped to 0..255)
+ * @param minor minor version (clamped to 0..255)
+ * @param patch patch version (clamped to 0..255)
+ * @return `(major << 16) | (minor << 8) | patch`
+ */
 static inline uint32_t c4_version_number(const uint8_t major, const uint8_t minor, const uint8_t patch) {
-  return ((uint32_t)major << 16) | ((uint32_t)minor << 8) | (uint32_t)patch;
+  return ((uint32_t) major << 16) | ((uint32_t) minor << 8) | (uint32_t) patch;
 }
 
 /**

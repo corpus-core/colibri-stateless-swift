@@ -43,9 +43,39 @@ typedef struct {
   uint32_t max_sync_states;
 } storage_plugin_t;
 
+/**
+ * Fills `plugin` with the active storage backend (file, memory, or host-registered).
+ *
+ * @param plugin output plugin struct (must not be NULL)
+ */
 void    c4_get_storage_config(storage_plugin_t* plugin);
+
+/**
+ * Registers the storage backend used by `c4_get_client_state` and retry-delay persistence.
+ *
+ * @param plugin plugin vtable copied into global config (must remain valid for process lifetime)
+ */
 void    c4_set_storage_config(storage_plugin_t* plugin);
+
+/**
+ * Loads the persisted client sync snapshot for a chain (`states_<chain_id>` key).
+ *
+ * @param chain_id target chain
+ * @return snapshot bytes, or `NULL_BYTES` if missing or storage unavailable
+ */
 bytes_t c4_get_client_state(chain_id_t chain_id);
+
+/**
+ * Returns whether `name` is a safe basename for file-backed storage.
+ *
+ * Rejects `NULL`, empty strings, `.`, `..`, and any name containing `/` or `\`.
+ * This blocks POSIX path traversal out of `C4_STATES_DIR`; it is not a full
+ * allowlist and does not canonicalize Windows drive letters or trailing dots.
+ *
+ * @param name storage key to check
+ * @return true if the name contains no path separators and is not `.` or `..`
+ */
+bool c4_storage_name_is_safe(const char* name);
 
 #ifdef FILE_STORAGE
 /**

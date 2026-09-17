@@ -1042,7 +1042,6 @@ void c4_req_set_error(void* req_ptr, char* error, uint16_t node_index);
  */
 void* c4_verify_create_ctx(bytes_t proof, char* method, char* args, uint64_t chain_id, char* trusted_checkpoint, uint32_t flags);
 
-
 /**
  * Executes one step of the proof verification state machine.
  *
@@ -1257,7 +1256,8 @@ uint32_t c4_get_current_version_number(void);
  * @param verify_flags Flags for verification bitmask. Common values: `2` = `VERIFY_FLAG_PAP`,
  *                     `64` = `VERIFY_FLAG_OBLIVIOUS`, `128` = `VERIFY_FLAG_SKIP_WSP_CHECK`
  *                     (SECURITY: disables the Weak Subjectivity Period anchor; only safe with an
- *                     alternative trust anchor such as witness signatures or a hard-coded checkpoint).
+ *                     alternative trust anchor such as witness signatures or a hard-coded checkpoint),
+ *                     `1024` = `VERIFY_FLAG_PERSIST_HEADER_CACHE` (reload/save EL header cache from storage).
  * @param prover_mode proof generation mode: 0 = local, 1 = remote, 2 = hybrid (header proof from server, execution data from RPC provider)
  * @return A new RPC context pointer, or NULL if creation failed
  *
@@ -1286,6 +1286,15 @@ void* c4_create_rpc_ctx(char* method, char* params, uint64_t chain_id, uint32_t 
  * @param trusted_checkpoint hex string with "0x" prefix (66 chars total), or NULL (no-op)
  */
 void c4_set_checkpoint(uint64_t chain_id, const char* trusted_checkpoint);
+
+/**
+ * Clears all in-process prover and verifier caches.
+ *
+ * Use this between fixture-backed tests that share one process. Must not
+ * run concurrently with proof generation (`rpc()` / `c4_prover_execute`).
+ * Persistent storage (`states_*`, `sync_*`, `header_tags_*`) is left untouched.
+ */
+void c4_reset_caches(void);
 
 /**
  * Sets witness/signer keys on an RPC context (hex-encoded).

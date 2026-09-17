@@ -296,8 +296,8 @@ void c4_request_free(data_request_t* req);
 /**
  * Appends common remote-prover JSON fields to an open object (after `method` / `params`).
  *
- * Writes: `,"version"`, optional `,"c4"`, optional `zk_proof`, `include_code`, `signers`.
- * Caller must finish the JSON object with `}`.
+ * Writes: `,"version"`, optional `,"c4"`, optional `zk_proof`, `include_code`, `signers`
+ * and optional `last_block_hash`. Caller must finish the JSON object with `}`.
  *
  * @param payload growable buffer; current content must not include the closing `}`
  * @param client_state pre-captured snapshot of the chain's client_state; pass `NULL_BYTES`
@@ -305,8 +305,11 @@ void c4_request_free(data_request_t* req);
  * @param chain_id chain used for fallback `c4_get_client_state` when no snapshot is given
  * @param flags bitmask using `C4_PROVER_REQ_FLAG_*` (same bit layout as `prover_flags_t`)
  * @param witness_key witness bytes for `signers` (may be `NULL_BYTES`)
+ * @param last_block_hash 32-byte hash of the newest execution block header the client has
+ *                        verified and cached; allows the prover to omit the block proof
+ *                        (`blockHash` union variant). Pass `NULL_BYTES` to omit the field.
  */
-void c4_append_prover_request_props(buffer_t* payload, bytes_t client_state, chain_id_t chain_id, uint32_t flags, bytes_t witness_key);
+void c4_append_prover_request_props(buffer_t* payload, bytes_t client_state, chain_id_t chain_id, uint32_t flags, bytes_t witness_key, bytes_t last_block_hash);
 
 /**
  * Finds a data request by its unique identifier.
@@ -319,6 +322,50 @@ void c4_append_prover_request_props(buffer_t* payload, bytes_t client_state, cha
  * @return Pointer to the matching request, or NULL if not found
  */
 data_request_t* c4_state_get_data_request_by_id(c4_state_t* state, bytes32_t id);
+
+/**
+ * Finds a data request whose `response` pointer matches the given bytes.
+ *
+ * Used to attach `validated` to the request that produced a consumed buffer
+ * without changing every consume-function signature.
+ *
+ * @param state Pointer to the state object
+ * @param response Response bytes (matched by `data` pointer, not contents)
+ * @return Pointer to the matching request, or NULL if not found
+ */
+data_request_t* c4_state_get_data_request_by_response(c4_state_t* state, bytes_t response);
+
+/**
+ * Gets a `C4_DATA_TYPE_CACHE` snapshot from the request list.
+ *
+ * Walks the request list and matches only `C4_DATA_TYPE_CACHE` entries with a
+ * non-empty `response`. A real I/O request that happens to share the same `id`
+ * is skipped (unlike `c4_state_get_data_request_by_id`, which returns the first
+ * id match regardless of type).
+ *
+ * @param state Pointer to the state object
+ * @param key 32-byte identifier to search for
+ * @return The cached bytes, or `NULL_BYTES` if not found
+ */
+bytes_t c4_state_cache_get(c4_state_t* state, bytes32_t key);
+
+/**
+ * Stores a `C4_DATA_TYPE_CACHE` snapshot in the request list.
+ *
+ * Replaces the response of an existing cache entry with the same `id`. If the
+ * `id` belongs to a non-cache request, a new cache entry is appended at the
+ * end of the list instead of overwriting the I/O request. Appending keeps
+ * `c4_state_get_data_request_by_id` pointing at the I/O request (first match).
+ * Callers that want the snapshot must use `c4_state_cache_get`.
+ *
+ * Ownership of `value.data` transfers to the state (freed by `c4_state_free`).
+ *
+ * @param state Pointer to the state object
+ * @param key 32-byte identifier to store the value under
+ * @param value The value to store
+ * @return The stored value
+ */
+bytes_t c4_state_cache_set(c4_state_t* state, bytes32_t key, bytes_t value);
 
 /**
  * Finds a data request by its URL.
@@ -376,7 +423,7 @@ bool c4_state_retry_after(data_request_t* req, uint32_t delay_ms, uint16_t max_r
  * @param state Pointer to the state object
  * @param data_request Pointer to the request to add (ownership transfers to state)
  */
-void c4_state_add_request(c4_state_t* state, data_request_t* data_request) M_TAKE(2);
+void c4_state_add_request(c4_state_t* state, data_request_t* data_request);
 
 /**
  * Gets the first pending request from the state.
@@ -705,7 +752,8 @@ static inline bool c4_check_json_verify_cached_inline(c4_state_t* state, bool* s
       req->node_exclude_mask |= (1 << req->response_node_index);                                                                                                                              \
     log_warn("   [retry] request (%s) returned invalid response (%r) from node index=%d, retrying", c4_req_info(req->type, req->url, req->payload), req->response, req->response_node_index); \
     safe_free(req->response.data);                                                                                                                                                            \
-    req->response = NULL_BYTES;                                                                                                                                                               \
+    req->response  = NULL_BYTES;                                                                                                                                                              \
+    req->validated = false;                                                                                                                                                                   \
     return C4_PENDING;                                                                                                                                                                        \
   } while (0)
 

@@ -289,125 +289,32 @@ public class Colibri {
 
     /// Default prover URLs for supported chains.
     public static func defaultProvers(for chainId: UInt64) -> [String] {
-        switch chainId {
-        case 1:
-            return [
-                "https://mainnet.colibri-proof.tech",
-                "https://mainnet-prover.incubed.net",
-                "https://mainnet.colimind.com",
-            ]
-        case 11155111:
-            return [
-                "https://sepolia.colibri-proof.tech",
-                "https://sepolia-prover.incubed.net",
-                "https://sepolia.colimind.com",
-            ]
-        case 100:
-            return [
-                "https://gnosis.colibri-proof.tech",
-                "https://gnosis-prover.incubed.net",
-                "https://gnosis.colimind.com",
-            ]
-        case 10200:
-            return ["https://chiado.colibri-proof.tech"]
-        default:
-            return ["https://c4.incubed.net"]
-        }
+        DefaultChains.defaultProvers(for: chainId)
     }
 
-    /// Default Ethereum RPC URLs for supported chains (fallback order: colibri-proof.tech first, public as fallback).
+    /// Default Ethereum RPC URLs for supported chains.
     public static func defaultEthRpcs(for chainId: UInt64) -> [String] {
-        switch chainId {
-        case 1:
-            return [
-                "https://mainnet.colibri-proof.tech/execution",
-                "https://eth.drpc.org",
-                "https://ethereum-rpc.publicnode.com",
-                "https://singapore.rpc.blxrbdn.com",
-            ]
-        case 11155111:
-            return [
-                "https://sepolia.colibri-proof.tech/execution",
-                "https://sepolia.drpc.org",
-                "https://ethereum-sepolia-rpc.publicnode.com",
-                "https://sepolia.gateway.tenderly.co",
-            ]
-        case 100:
-            return [
-                "https://gnosis.colibri-proof.tech/execution",
-                "https://rpc.gnosischain.com",
-                "https://rpc.gnosis.gateway.fm",
-                "https://gnosis-rpc.publicnode.com",
-            ]
-        case 10200:
-            return [
-                "https://rpc.chiado.gnosis.gateway.fm",
-                "https://rpc.chiadochain.net",
-                "https://gnosis-chiado-rpc.publicnode.com",
-            ]
-        default:
-            return []
-        }
+        DefaultChains.defaultEthRpcs(for: chainId)
     }
 
-    /// Default beacon API URLs for supported chains (fallback order: colibri-proof.tech first, public as fallback).
+    /// Default beacon API URLs for supported chains.
     public static func defaultBeaconApis(for chainId: UInt64) -> [String] {
-        switch chainId {
-        case 1:
-            return [
-                "https://mainnet.colibri-proof.tech/consensus",
-                "https://gateway.tenderly.co/public/mainnet",
-                "https://ethereum-beacon-api.publicnode.com",
-            ]
-        case 11155111:
-            return [
-                "https://sepolia.colibri-proof.tech/consensus",
-                "https://ethereum-sepolia-beacon-api.publicnode.com",
-            ]
-        case 100:
-            return [
-                "https://gnosis.colibri-proof.tech/consensus",
-                "https://rpc-gbc.gnosischain.com",
-                "https://gnosis-beacon-api.publicnode.com",
-            ]
-        case 10200:
-            return [
-                "https://rpc-gbc.chiadochain.net",
-            ]
-        default:
-            return []
-        }
+        DefaultChains.defaultBeaconApis(for: chainId)
     }
 
     /// Default checkpointz URLs for supported chains.
     public static func defaultCheckpointz(for chainId: UInt64) -> [String] {
-        switch chainId {
-        case 1:
-            return [
-                "https://sync-mainnet.beaconcha.in",
-                "https://mainnet.checkpoint.sigp.io",
-                "https://mainnet-checkpoint-sync.attestant.io",
-                "https://beaconstate-mainnet.chainsafe.io",
-                "https://mainnet-checkpoint-sync.stakely.io",
-                "https://checkpointz.pietjepuk.net",
-                "https://beaconstate.ethstaker.cc",
-            ]
-        case 11155111:
-            return [
-                "https://checkpoint-sync.sepolia.ethpandaops.io",
-                "https://beaconstate-sepolia.chainsafe.io",
-            ]
-        case 100:
-            return ["https://checkpoint.gnosischain.com"]
-        case 10200:
-            return ["https://checkpoint.chiadochain.net"]
-        default:
-            return []
-        }
+        DefaultChains.defaultCheckpointz(for: chainId)
     }
 
     public static func initialize() {
         // Placeholder for initialization if needed
+    }
+
+    /// Clears in-process prover/verifier caches. Call between fixture-backed
+    /// tests that share one process.
+    public static func resetCaches() {
+        c4_reset_caches()
     }
 
     // MARK: - Verify Flags
@@ -556,12 +463,18 @@ public class Colibri {
             }
         }
         
-        // Create bytes_t struct for proof data with safe memory handling
-        let proofBytes = proof.withUnsafeBytes { rawBufferPointer in
-            bytes_t(
-                len: UInt32(proof.count),
-                data: UnsafeMutablePointer(mutating: rawBufferPointer.bindMemory(to: UInt8.self).baseAddress!)
-            )
+        // Create bytes_t for the proof. Empty Data has a nil baseAddress, so
+        // skip the force-unwrap and pass a zero-length view to C.
+        let proofBytes: bytes_t
+        if proof.isEmpty {
+            proofBytes = bytes_t(len: 0, data: nil)
+        } else {
+            proofBytes = proof.withUnsafeBytes { rawBufferPointer in
+                bytes_t(
+                    len: UInt32(proof.count),
+                    data: UnsafeMutablePointer(mutating: rawBufferPointer.bindMemory(to: UInt8.self).baseAddress!)
+                )
+            }
         }
         
         guard let ctx = c4_verify_create_ctx(proofBytes, methodCStr, paramsCStr, chainId, trustedCheckpointCStr, getVerifyFlags()) else {
@@ -798,9 +711,12 @@ public class Colibri {
                     
                     // 🎯 MOCK SUPPORT: Check if request handler is set
                     if let requestHandler = self.requestHandler {
-                        // Create DataRequest for mock handler
+                        // Pass the C-relative URL through unchanged. Fixture names are
+                        // derived from `req->url` (e.g. `eth/v1/beacon/headers/...`);
+                        // prefixing the default prover host produced
+                        // `https___mainnet_colibri-proof_tech_...` misses.
                         let dataRequest = DataRequest(
-                            url: uri.isEmpty ? servers.first ?? "" : "\(servers.first ?? "")/\(uri)",
+                            url: uri,
                             method: method,
                             payload: request["payload"] as? [String: Any],
                             encoding: request["encoding"] as? String,
