@@ -34,6 +34,11 @@ typedef struct {
 #define BYTES_T_DEFINED
 #endif
 
+#ifndef C4_CHAIN_ID_T_DEFINED
+#define C4_CHAIN_ID_T_DEFINED
+typedef uint64_t chain_id_t;
+#endif
+
 // : APIs
 
 // :: Public Bindings API
@@ -1225,6 +1230,29 @@ int c4_get_method_support(uint64_t chain_id, char* method, char* params, uint32_
  */
 uint32_t c4_get_current_version_number(void);
 
+/**
+ * Returns the L1 chain id that settles `chain`.
+ *
+ * Hosts call this to pick the RPC list for a data request whose `chain_id`
+ * is not the chain the client was configured with. The HTTP body of that
+ * request is unchanged; only the chosen node list differs.
+ *
+ * Only EEZ (Ethereum Economic Zone) L2s have a different L1: their block hash
+ * is proven by a storage proof on that L1, so the client also issues prover,
+ * beacon and checkpoint requests with the L1 chain id. Every other chain
+ * (L1s and OP-Stack L2s) is returned unchanged, which means no request of such
+ * a client is ever routed to an L1 list.
+ *
+ * | `chain`             | result                    |
+ * |---------------------|---------------------------|
+ * | RollupX (`0xaa29f`) | Ethereum mainnet (`1`)    |
+ * | anything else       | `chain`                   |
+ *
+ * @param chain client chain id (prover, verifier, or RPC context)
+ * @return L1 chain id for an EEZ L2, otherwise `chain` itself
+ */
+chain_id_t c4_get_l1_chain_id_for_l2(chain_id_t chain);
+
 // :: Unified RPC API
 //
 // The unified RPC API combines method type detection, proof generation (local or remote),
@@ -1281,6 +1309,10 @@ void* c4_create_rpc_ctx(char* method, char* params, uint64_t chain_id, uint32_t 
  * Parses a hex checkpoint string and stores it globally for the given chain.
  * Call this once before any verification if the host has a known checkpoint.
  * The checkpoint persists across all prover/verifier/RPC contexts for the chain.
+ *
+ * A checkpoint is a beacon block root. For an L2 that settles on L1 (EEZ) it is stored
+ * for the L1 chain (`c4_get_l1_chain_id_for_l2(chain_id)`), whose sync committee the L2
+ * proofs are verified against.
  *
  * @param chain_id target chain ID
  * @param trusted_checkpoint hex string with "0x" prefix (66 chars total), or NULL (no-op)

@@ -233,7 +233,7 @@ typedef enum {
  * Eth RPC, etc.) and support retry logic with node exclusion.
  */
 typedef struct data_request {
-  chain_id_t              chain_id;              ///< The blockchain chain ID for this request
+  chain_id_t              chain_id;              ///< The blockchain chain ID for this request. The creator copies it from the prover, verifier, or RPC context. For `C4_DATA_TYPE_ETH_RPC` the host selects the RPC list for this chain. `0` means the creator did not set it and is not a valid routing key.
   data_request_type_t     type;                  ///< Type of data source (Beacon API, Eth RPC, etc.)
   data_request_encoding_t encoding;              ///< Encoding format for request/response (JSON or SSZ)
   char*                   url;                   ///< URL endpoint for the request (may be NULL for RPC)
@@ -415,6 +415,18 @@ bool c4_state_is_pending(data_request_t* req);
 bool c4_state_retry_after(data_request_t* req, uint32_t delay_ms, uint16_t max_retries);
 
 /**
+ * Builds a 32-byte request id bound to one chain.
+ *
+ * The chain id is prefixed to `material` before hashing, so the same payload
+ * on two chains does not share one `data_request_t`. `material` is not modified.
+ *
+ * @param out 32-byte id written by this function
+ * @param chain_id chain that owns the request
+ * @param material payload or URL that identifies the request on that chain
+ */
+void c4_chain_request_id(bytes32_t out, chain_id_t chain_id, bytes_t material);
+
+/**
  * Adds a new data request to the state.
  *
  * Automatically generates a unique ID for the request if not already set
@@ -481,6 +493,32 @@ void c4_state_take_requests(c4_state_t* dst, c4_state_t* src);
   do {                                     \
     c4_status_t state = fn;                \
     if (state != C4_SUCCESS) return state; \
+  } while (0)
+
+/**
+ * **TRY_AS_L1(fn)** - Runs `fn` with `ctx->chain_id` set to the L1 of the current chain.
+ *
+ * Saves `ctx->chain_id`, sets it to `c4_get_l1_chain_id_for_l2`, evaluates `fn`, and restores
+ * the saved id before doing anything else. The restore happens on every path, including
+ * `C4_PENDING` and `C4_ERROR`. A chain that is its own L1 is left unchanged.
+ *
+ * `ctx` must be in scope and point at a context with a `chain_id` field (`verify_ctx_t` or
+ * `prover_ctx_t`). A status other than `C4_SUCCESS` returns from the enclosing function,
+ * same as `TRY_ASYNC`.
+ *
+ * @param fn function call that returns `c4_status_t`
+ *
+ * ```c
+ * TRY_AS_L1(c4_verify_block(ctx, l1_proof, &header, hash));
+ * ```
+ */
+#define TRY_AS_L1(fn)                                                      \
+  do {                                                                     \
+    chain_id_t saved_chain_id = ctx->chain_id;                             \
+    ctx->chain_id             = c4_get_l1_chain_id_for_l2(saved_chain_id); \
+    c4_status_t status        = fn;                                        \
+    ctx->chain_id             = saved_chain_id;                            \
+    if (status != C4_SUCCESS) return status;                               \
   } while (0)
 
 /**
