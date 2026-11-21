@@ -30,6 +30,18 @@ enum DefaultChains {
             return ["https://plataberget.colibri-proof.tech"]
         case 696991:
             return ["https://rollupx.colibri-proof.tech"]
+        case 42161:
+            return ["https://arbitrum.colibri-proof.tech"]
+        case 8453:
+            return ["https://base.colibri-proof.tech"]
+        case 10:
+            return ["https://optimism.colibri-proof.tech"]
+        case 130:
+            return ["https://unichain.colibri-proof.tech"]
+        case 7777777:
+            return ["https://zora.colibri-proof.tech"]
+        case 57073:
+            return ["https://ink.colibri-proof.tech"]
         default:
             return ["https://c4.incubed.net"]
         }
@@ -74,6 +86,40 @@ enum DefaultChains {
                 "https://rollupx.colibri-proof.tech/execution",
                 "https://rollupx.eez.dev/rpc/l2",
             ]
+        case 42161:
+            return [
+                "https://arbitrum.colibri-proof.tech/execution",
+                "https://arb1.arbitrum.io/rpc",
+                "https://arbitrum-one-rpc.publicnode.com",
+            ]
+        case 8453:
+            return [
+                "https://base.colibri-proof.tech/execution",
+                "https://mainnet.base.org",
+                "https://base-rpc.publicnode.com",
+            ]
+        case 10:
+            return [
+                "https://optimism.colibri-proof.tech/execution",
+                "https://mainnet.optimism.io",
+                "https://optimism-rpc.publicnode.com",
+            ]
+        case 130:
+            return [
+                "https://unichain.colibri-proof.tech/execution",
+                "https://mainnet.unichain.org",
+                "https://unichain-rpc.publicnode.com",
+            ]
+        case 7777777:
+            return [
+                "https://zora.colibri-proof.tech/execution",
+                "https://rpc.zora.energy",
+            ]
+        case 57073:
+            return [
+                "https://ink.colibri-proof.tech/execution",
+                "https://rpc-gel.inkonchain.com",
+            ]
         default:
             return []
         }
@@ -108,6 +154,22 @@ enum DefaultChains {
             ]
         case 696991:
             return ["https://mainnet.colibri-proof.tech/consensus"]
+        case 42161:
+            return [
+                "https://mainnet.colibri-proof.tech/consensus",
+                "https://gateway.tenderly.co/public/mainnet",
+                "https://ethereum-beacon-api.publicnode.com",
+            ]
+        case 8453:
+            return ["https://mainnet.colibri-proof.tech/consensus"]
+        case 10:
+            return ["https://mainnet.colibri-proof.tech/consensus"]
+        case 130:
+            return ["https://mainnet.colibri-proof.tech/consensus"]
+        case 7777777:
+            return ["https://mainnet.colibri-proof.tech/consensus"]
+        case 57073:
+            return ["https://mainnet.colibri-proof.tech/consensus"]
         default:
             return []
         }
@@ -138,6 +200,21 @@ enum DefaultChains {
         case 7091047534:
             return ["https://checkpoint-sync.glamsterdam-devnet-8.ethpandaops.io"]
         case 696991:
+            return ["https://mainnet.colibri-proof.tech/consensus"]
+        case 42161:
+            return [
+                "https://sync-mainnet.beaconcha.in",
+                "https://mainnet.checkpoint.sigp.io",
+            ]
+        case 8453:
+            return ["https://mainnet.colibri-proof.tech/consensus"]
+        case 10:
+            return ["https://mainnet.colibri-proof.tech/consensus"]
+        case 130:
+            return ["https://mainnet.colibri-proof.tech/consensus"]
+        case 7777777:
+            return ["https://mainnet.colibri-proof.tech/consensus"]
+        case 57073:
             return ["https://mainnet.colibri-proof.tech/consensus"]
         default:
             return []
